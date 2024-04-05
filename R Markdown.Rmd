@@ -1,0 +1,237 @@
+---
+title: ""The Effectiveness of Smartphones on English Vocabulary Learning in Non-English-Speaking"
+  Countries: A Meta-Analysis and Meta-Regression"
+author: "Adnan Mayof"
+date: "2024-04-05"
+output: html_document
+---
+
+```{r}
+##Load Required Libraries
+library(readxl)
+library(metafor)
+library(meta)
+library(dmetar)
+
+```
+
+ 
+```{r}
+##Read Data
+library(readxl)
+Data <- read_excel("F:/Not Use/Acadamic/Projects Completed & Incompleted/The Effectiveness of Smartphones/Excel/Data.xlsx")
+View(Data)
+
+```
+
+
+
+```{r}
+##Attach Data
+attach(Data)
+
+ 
+```
+
+
+```{r}
+##Define Variables
+yi <- Hedgesg
+vi <- Variance
+sei <- StandardError
+
+ 
+```
+
+
+
+```{r}
+# Meta-analysis without moderators
+resALL <- rma.mv(yi, vi, data = Data, method = "REML")
+resALL
+
+
+```
+
+```{r}
+# Calculate multilevel I2 values
+resi2ALL <- rma.mv(yi, vi, random = ~ 1 | Author/StudyId, data = Data, method = "REML")
+i2ALL <- var.comp(resi2ALL)
+summary(i2ALL)
+
+
+
+```
+
+```{r}
+# Compute fail-safe N
+fsn(yi, vi, sei, data = Data, type = "Rosenthal")
+
+
+```
+
+```{r}
+# Plot funnel plot
+funnel(resALL)
+
+
+
+```
+
+
+```{r}
+##Convert Categorical Variables to Factors
+
+Data$ApplicationType <- as.factor(Data$ApplicationType)
+Data$AssessmentType <- as.factor(Data$AssessmentType)
+Data$Country <- as.factor(Data$Country)
+Data$EducationalLevel <- as.factor(Data$EducationalLevel)
+Data$Feedback <- as.factor(Data$Feedback)
+Data$InterventionDuration <- as.factor(Data$InterventionDuration)
+Data$LanguageProficiency <- as.factor(Data$LanguageProficiency)
+Data$LearningContext <- as.factor(Data$LearningContext)
+Data$PublicationType <- as.factor(Data$PublicationType)
+Data$TeachingMethod <- as.factor(Data$TeachingMethod)
+
+```
+
+
+```{r}
+str(Data) 
+```
+
+ 
+```{r}
+### Moderators Analysis
+
+# ApplicationType moderator
+app <- rma.mv(yi, vi, mods = ~ ApplicationType)
+app
+Data$ApplicationType <- relevel(Data$ApplicationType, ref = "Zhimi")
+appref <- rma.mv(yi, vi, mods = ~ ApplicationType, data = Data)
+summary(appref)
+
+# AssessmentType moderator
+assess <- rma.mv(yi, vi, mods = ~ AssessmentType)
+assess
+Data$AssessmentType <- relevel(Data$AssessmentType, ref = "NR")
+assref <- rma.mv(yi, vi, mods = ~ AssessmentType, data = Data)
+summary(assref)
+
+# Country moderator
+control <- rma.mv(yi, vi, mods = ~ Country)
+control
+Data$Country <- relevel(Data$Country, ref = "Iran")
+conref <- rma.mv(yi, vi, mods = ~ Country, data = Data)
+summary(conref)
+
+# EducationalLevel moderator
+edulevel <- rma(yi, vi, mods = ~ EducationalLevel)
+edulevel
+Data$EducationalLevel <- relevel(Data$EducationalLevel, ref = "NR")
+edref <- rma.mv(yi, vi, mods = ~ EducationalLevel, data = Data)
+summary(edref)
+
+# Feedback moderator
+feed <- rma.mv(yi, vi, mods = ~ Feedback)
+feed
+Data$Feedback <- relevel(Data$Feedback, ref = "Via Application")
+feedref <- rma.mv(yi, vi, mods = ~ Feedback, data = Data)
+summary(feedref)
+
+# InterventionDuration moderator
+intervention <- rma.mv(yi, vi, mods = ~ InterventionDuration) 
+intervention
+Data$InterventionDuration <- relevel(Data$InterventionDuration, ref = "One week")
+interref <- rma.mv(yi, vi, mods = ~ InterventionDuration, data = Data)
+summary(interref)
+
+# LanguageProficiency moderator
+proficiency <- rma.mv(yi, vi, mods = ~ LanguageProficiency)
+proficiency
+Data$LanguageProficiency <- relevel(Data$LanguageProficiency, ref = "NR")
+lanref <- rma.mv(yi, vi, mods = ~ LanguageProficiency, data = Data)
+summary(lanref)
+
+# LearningContext moderator
+context <- rma.mv(yi, vi, mods = ~ LearningContext)
+context
+Data$LearningContext <- relevel(Data$LearningContext, ref = "Mixed")
+learnref <- rma.mv(yi, vi, mods = ~ LearningContext, data = Data)
+summary(learnref)
+
+# PublicationType moderator
+publication <- rma.mv(yi, vi, mods = ~ PublicationType)
+publication
+Data$PublicationType <- relevel(Data$PublicationType, ref = "Dissertation")
+pubref <- rma.mv(yi, vi, mods = ~ PublicationType, data = Data)
+summary(pubref)
+  
+# TeachingMethod moderator
+method <- rma.mv(yi, vi, mods = ~ TeachingMethod)
+method
+Data$TeachingMethod <- relevel(Data$TeachingMethod, ref = "Teacher-led")
+teachref <- rma.mv(yi, vi, mods = ~ TeachingMethod, data = Data)
+summary(teachref)
+
+
+
+
+```
+
+
+
+```{r}
+### Attach Data
+attach(Data)
+
+### Regression Analysis
+
+# Model for each predictor individually
+model1 <- lm(yi ~ ApplicationType)
+summary(model1)
+
+model2 <- lm(yi ~ AssessmentType)
+summary(model2)
+
+model3 <- lm(yi ~ Country)
+summary(model3)
+
+model4 <- lm(yi ~ EducationalLevel)
+summary(model4)
+
+model5 <- lm(yi ~ Feedback)
+summary(model5)
+
+model6 <- lm(yi ~ InterventionDuration)
+summary(model6)
+
+model7 <- lm(yi ~ LanguageProficiency)
+summary(model7)
+
+model8 <- lm(yi ~ LearningContext)
+summary(model8)
+
+model9 <- lm(yi ~ PublicationType)
+summary(model9)
+
+model10 <- lm(yi ~ TeachingMethod)
+summary(model10)
+
+# Models considering multiple predictors
+model11 <- lm(yi ~ ApplicationType + AssessmentType + Country + LanguageProficiency + LearningContext)
+summary(model11)
+# Adjusted R-squared:  0.8843 
+# Removing any variable from the model makes it insignificant
+# Adding educational level or feedback has a negative effect on the model
+# Adding publication type or teaching method has no effect on the model
+
+model12 <- lm(yi ~ AssessmentType + ApplicationType + Country + InterventionDuration + LanguageProficiency + LearningContext)
+summary(model12)
+
+model13 <- lm(yi ~ AssessmentType + ApplicationType + Country + LanguageProficiency + LearningContext)
+summary(model13)
+
+```
+
+ 
